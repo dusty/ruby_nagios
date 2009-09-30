@@ -81,7 +81,8 @@ def check_storage
       display = "M"
     end
     nagios = check.compare(comp)
-    nagios.message = "#{nagios.result} #{display} of disk free on #{@options[:label]}"
+    label = @options[:label].delete('^').delete('$')
+    nagios.message = "#{nagios.result} #{display} of disk free on #{label}"
   end
   nagios
 end
