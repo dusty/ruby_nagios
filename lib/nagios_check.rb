@@ -2,7 +2,8 @@ class NagiosCheck
 
   INFINITY = 1.0/0
   NEGATIVE_INFINITY = -1.0/0
-
+  NUMBER_REGEX = '^\d\.?\d*$'
+  
   attr_reader :warning, :critical, :ok
 
   def initialize(warning,critical)
@@ -36,22 +37,22 @@ class NagiosCheck
     output = nil
     param = param.strip if param 
     case param
-    when /^\d+$/ 
+    when /#{NUMBER_REGEX}/
       args << [0,param.to_f]
       output = "(lt 0 OR gt #{param})"
-    when /^\d+:$/
+    when /^#{NUMBER_REGEX}:$/
       arg = param.split(/:/)[0]
       args << [arg.to_f,INFINITY]
       output = "(lt #{arg})"
-    when /^~:\d+$/
+    when /^~:#{NUMBER_REGEX}$/
       arg = param.split(/:/)[1]
       args << [NEGATIVE_INFINITY,arg.to_f]
       output = "(gt #{arg})"
-    when /^\d+:\d+$/
+    when /^#{NUMBER_REGEX}:#{NUMBER_REGEX}$/
       arg = param.split(/:/)
       args << [arg[0].to_f,arg[1].to_f]
       output = "(lt #{arg[0]} OR gt #{arg[1]})"
-    when /^@\d+:\d+$/
+    when /^@#{NUMBER_REGEX}:#{NUMBER_REGEX}$/
       arg = param.split(/:/)
       arg[0] = arg[0].sub(/@/,'')
       args << [NEGATIVE_INFINITY,arg[0].to_f - 1]
