@@ -13,12 +13,15 @@ Description:
   results are outside the specified ranges. 
  
   The warning and critical arguments default to the 1 minute load unless
-  otherwise specified. The last load type argument will take precen
+  otherwise specified.
+  
+  The load checks should be in an integer.  
+  For example: 1.5 = 150, 12.3 = 1230
  
 
 Example:
   Warning if over 1.5, Critical if over 2.5
-  $ snmp_load.rb -H somehost -w "~:1.5" -c "~:2.5"
+  $ snmp_load.rb -H somehost -w "~:150" -c "~:250"
 EOD
 
 @options = {}
@@ -59,9 +62,12 @@ def get_load
 end
 
 def check_load
+  warn = @options[:warning] ? (@options[:warning].to_f * 100) : nil
+  crit = @options[:critical] ? (@options[:critical].to_f * 100) : nil
   check = NagiosCheck.new(@options[:warning], @options[:critical])
   load = get_load
-  nagios = check.compare(load.load[@options[:load]])
+  load_integer = load.load[@options[:load]] * 100
+  nagios = check.compare(load_integer)
   nagios.message = "load average: #{load}"
   nagios
 end
